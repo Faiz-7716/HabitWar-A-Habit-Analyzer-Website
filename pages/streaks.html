@@ -1,0 +1,95 @@
+<!-- Streaks & Goals Page -->
+<div class="streaks-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Streaks & Goals</h1>
+            <p class="page-subtitle">Keep the fire burning! 🔥</p>
+        </div>
+    </div>
+    
+    <!-- Global Streak Card -->
+    <div class="card" style="background: linear-gradient(135deg, var(--sidebar-bg) 0%, #1a1a2e 100%); color: var(--text-light); margin-bottom: var(--space-xl);">
+        <div style="display: flex; align-items: center; gap: var(--space-xl); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: var(--space-lg);">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--accent-lime) 0%, var(--accent-lime-dark) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-glow);">
+                    <i data-lucide="flame" style="width: 40px; height: 40px; color: var(--sidebar-bg);"></i>
+                </div>
+                <div>
+                    <p style="font-size: var(--font-size-sm); color: var(--text-muted);">Current Global Streak</p>
+                    <p style="font-size: var(--font-size-4xl); font-weight: 800; line-height: 1;" id="globalStreakCount">0</p>
+                    <p style="font-size: var(--font-size-sm); color: var(--accent-lime);">consecutive days</p>
+                </div>
+            </div>
+            
+            <div style="flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); min-width: 300px;">
+                <div style="text-align: center; padding: var(--space-md); background: rgba(255,255,255,0.05); border-radius: var(--radius-md);">
+                    <p style="font-size: var(--font-size-2xl); font-weight: 700; color: var(--accent-lime);" id="longestStreak">0</p>
+                    <p style="font-size: var(--font-size-xs); color: var(--text-muted);">Longest Streak</p>
+                </div>
+                <div style="text-align: center; padding: var(--space-md); background: rgba(255,255,255,0.05); border-radius: var(--radius-md);">
+                    <p style="font-size: var(--font-size-2xl); font-weight: 700; color: var(--success);" id="totalPerfectDays">0</p>
+                    <p style="font-size: var(--font-size-xs); color: var(--text-muted);">Perfect Days</p>
+                </div>
+                <div style="text-align: center; padding: var(--space-md); background: rgba(255,255,255,0.05); border-radius: var(--radius-md);">
+                    <p style="font-size: var(--font-size-2xl); font-weight: 700; color: var(--warning);" id="streaksStarted">0</p>
+                    <p style="font-size: var(--font-size-xs); color: var(--text-muted);">Streaks Started</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid-2">
+        <!-- Individual Habit Streaks -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i data-lucide="flame" style="width: 20px; height: 20px; color: var(--warning);"></i>
+                    Habit Streaks
+                </h3>
+            </div>
+            <div class="habit-streaks-list" id="habitStreaksList">
+                <!-- Habit streaks will be rendered here -->
+            </div>
+        </div>
+        
+        <!-- Monthly Goals Progress -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i data-lucide="target" style="width: 20px; height: 20px; color: var(--accent-lime-dark);"></i>
+                    Monthly Goals
+                </h3>
+                <span class="card-subtitle" id="currentMonth">December 2024</span>
+            </div>
+            <div class="goals-list" id="goalsList">
+                <!-- Goals progress will be rendered here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Achievement Badges -->
+    <div class="card" style="margin-top: var(--space-xl);">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i data-lucide="award" style="width: 20px; height: 20px; color: var(--accent-lime-dark);"></i>
+                Achievement Badges
+            </h3>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-md);" id="badgesGrid">
+            <!-- Badges will be rendered here -->
+        </div>
+    </div>
+    
+    <!-- Streak History Chart -->
+    <div class="card" style="margin-top: var(--space-xl);">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i data-lucide="line-chart" style="width: 20px; height: 20px; color: var(--accent-lime-dark);"></i>
+                Streak History
+            </h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="streakHistoryChart"></canvas>
+        </div>
+    </div>
+</div>

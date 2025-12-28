@@ -1,0 +1,49 @@
+<!-- Habits Management Page -->
+<div class="habits-management">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">My Habits</h1>
+            <p class="page-subtitle">Manage and track your daily battles</p>
+        </div>
+        <div style="display: flex; gap: var(--space-sm);">
+            <button class="btn btn-secondary" id="toggleViewBtn">
+                <i data-lucide="layout-grid"></i>
+                Grid View
+            </button>
+            <button class="btn btn-primary" id="openAddHabitModal">
+                <i data-lucide="plus"></i>
+                Add Habit
+            </button>
+        </div>
+    </div>
+    
+    <!-- Category Filter -->
+    <div class="tabs" id="categoryFilter">
+        <button class="tab-btn active" data-category="all">All Habits</button>
+        <button class="tab-btn" data-category="health">🏃 Health</button>
+        <button class="tab-btn" data-category="productivity">⚡ Productivity</button>
+        <button class="tab-btn" data-category="social">👥 Social</button>
+        <button class="tab-btn" data-category="finance">💰 Finance</button>
+        <button class="tab-btn" data-category="spiritual">🧘 Spiritual</button>
+    </div>
+    
+    <!-- Habits Grid -->
+    <div class="habits-grid" id="habitsGrid">
+        <!-- Habit cards will be rendered here -->
+    </div>
+    
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyHabitsState" style="display: none;">
+        <div style="text-align: center; padding: var(--space-3xl);">
+            <div style="width: 100px; height: 100px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-lg);">
+                <i data-lucide="target" style="width: 48px; height: 48px; color: var(--text-tertiary);"></i>
+            </div>
+            <h2 style="font-size: var(--font-size-xl); color: var(--text-primary); margin-bottom: var(--space-sm);">No habits yet</h2>
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">Start your journey by adding your first habit!</p>
+            <button class="btn btn-primary btn-lg" id="emptyStateAddBtn">
+                <i data-lucide="plus"></i>
+                Add Your First Habit
+            </button>
+        </div>
+    </div>
+</div>

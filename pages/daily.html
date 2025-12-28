@@ -1,0 +1,102 @@
+<!-- Daily Dashboard Page -->
+<div class="daily-dashboard">
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon lime">
+                <i data-lucide="check-circle-2"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Completed Today</span>
+                <span class="stat-value" id="completedCount">0</span>
+                <span class="stat-change positive">
+                    <i data-lucide="trending-up"></i>
+                    <span id="completedChange">+0 from yesterday</span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon warning">
+                <i data-lucide="clock"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Pending</span>
+                <span class="stat-value" id="pendingCount">0</span>
+                <span class="stat-change">
+                    <span id="pendingLabel">habits remaining</span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i data-lucide="flame"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Current Streak</span>
+                <span class="stat-value" id="currentStreak">0</span>
+                <span class="stat-change positive">
+                    <i data-lucide="zap"></i>
+                    <span>days</span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon info">
+                <i data-lucide="target"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Daily Score</span>
+                <span class="stat-value" id="dailyScore">0%</span>
+                <span class="stat-change positive" id="scoreChange">
+                    <i data-lucide="trending-up"></i>
+                    <span>Keep going!</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Habit Wheel Section -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i data-lucide="pie-chart"></i>
+                    Habit Wheel
+                </h2>
+            </div>
+            <div class="habit-wheel-container">
+                <div class="chart-container">
+                    <canvas id="habitWheelChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Today's Habits Section -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i data-lucide="list-checks"></i>
+                    Today's Battles
+                </h2>
+                <button class="btn btn-primary btn-sm" id="addHabitBtn">
+                    <i data-lucide="plus"></i>
+                    Add Habit
+                </button>
+            </div>
+            <div class="habits-list" id="todayHabitsList">
+                <!-- Habits will be rendered here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Motivational Quote -->
+    <div class="quote-card">
+        <div class="quote-icon">"</div>
+        <p class="quote-text" id="dailyQuote">The secret of your future is hidden in your daily routine.</p>
+        <p class="quote-author" id="quoteAuthor">— Mike Murdock</p>
+    </div>
+</div>

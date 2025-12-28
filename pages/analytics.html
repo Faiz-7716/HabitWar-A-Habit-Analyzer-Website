@@ -1,0 +1,256 @@
+<!-- Analytics Dashboard Page -->
+<div class="analytics-dashboard">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Analytics</h1>
+            <p class="page-subtitle">Track your progress and identify patterns</p>
+        </div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs" id="analyticsTabs">
+        <button class="tab-btn active" data-tab="weekly">Weekly</button>
+        <button class="tab-btn" data-tab="monthly">Monthly</button>
+        <button class="tab-btn" data-tab="yearly">Yearly</button>
+        <button class="tab-btn" data-tab="custom">Custom</button>
+    </div>
+    
+    <!-- Weekly Tab Content -->
+    <div class="tab-content active" id="weekly-content">
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Week Performance</h3>
+                    <span class="card-subtitle" id="weekRange">This Week</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Daily Comparison</h3>
+                </div>
+                <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 0;">
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i data-lucide="trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Best Day</span>
+                            <span class="stat-value" id="bestDay">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon danger">
+                            <i data-lucide="alert-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Needs Work</span>
+                            <span class="stat-value" id="worstDay">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: var(--space-lg);">
+                    <h4 style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-md);">Weekly Average</h4>
+                    <div class="progress-bar" style="height: 12px;">
+                        <div class="progress-bar-fill" id="weeklyAvgBar" style="width: 0%;"></div>
+                    </div>
+                    <p style="text-align: center; margin-top: var(--space-sm); font-weight: 600;" id="weeklyAvgText">0% completion rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Tab Content -->
+    <div class="tab-content" id="monthly-content">
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Heatmap</h3>
+                    <span class="card-subtitle" id="monthName">December 2024</span>
+                </div>
+                <div class="calendar-heatmap" id="monthlyHeatmap">
+                    <!-- Heatmap days will be generated here -->
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-md); margin-top: var(--space-lg);">
+                    <span style="font-size: var(--font-size-xs); color: var(--text-secondary);">Less</span>
+                    <div class="heatmap-day level-0" style="width: 16px; height: 16px;"></div>
+                    <div class="heatmap-day level-1" style="width: 16px; height: 16px;"></div>
+                    <div class="heatmap-day level-2" style="width: 16px; height: 16px;"></div>
+                    <div class="heatmap-day level-3" style="width: 16px; height: 16px;"></div>
+                    <div class="heatmap-day level-4" style="width: 16px; height: 16px;"></div>
+                    <span style="font-size: var(--font-size-xs); color: var(--text-secondary);">More</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Trend</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: var(--space-lg);">
+            <div class="card-header">
+                <h3 class="card-title">Monthly Statistics</h3>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon lime">
+                        <i data-lucide="calendar-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Completions</span>
+                        <span class="stat-value" id="monthlyCompletions">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i data-lucide="percent"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Avg. Daily Rate</span>
+                        <span class="stat-value" id="monthlyRate">0%</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon warning">
+                        <i data-lucide="flame"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Best Streak</span>
+                        <span class="stat-value" id="monthlyBestStreak">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon info">
+                        <i data-lucide="award"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Perfect Days</span>
+                        <span class="stat-value" id="perfectDays">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Yearly Tab Content -->
+    <div class="tab-content" id="yearly-content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon lime">
+                    <i data-lucide="calendar"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Days Active</span>
+                    <span class="stat-value" id="yearlyDaysActive">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i data-lucide="check-circle-2"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Habits Done</span>
+                    <span class="stat-value" id="yearlyHabitsDone">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i data-lucide="flame"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Longest Streak</span>
+                    <span class="stat-value" id="yearlyLongestStreak">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon info">
+                    <i data-lucide="trending-up"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Overall Rate</span>
+                    <span class="stat-value" id="yearlyRate">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top: var(--space-lg);">
+            <div class="card-header">
+                <h3 class="card-title">Yearly Overview</h3>
+                <span class="card-subtitle">2024</span>
+            </div>
+            <div class="chart-container large">
+                <canvas id="yearlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Tab Content -->
+    <div class="tab-content" id="custom-content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Custom Date Range</h3>
+            </div>
+            <div style="display: flex; gap: var(--space-md); flex-wrap: wrap; margin-bottom: var(--space-lg);">
+                <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                    <button class="btn btn-primary" id="applyDateRange">
+                        <i data-lucide="search"></i>
+                        Analyze
+                    </button>
+                </div>
+            </div>
+            
+            <div id="customRangeResults" style="display: none;">
+                <div class="stats-grid" style="margin-bottom: var(--space-lg);">
+                    <div class="stat-card">
+                        <div class="stat-icon lime">
+                            <i data-lucide="calendar-days"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Days in Range</span>
+                            <span class="stat-value" id="customDays">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i data-lucide="check-circle-2"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Completions</span>
+                            <span class="stat-value" id="customCompletions">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon info">
+                            <i data-lucide="percent"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Completion Rate</span>
+                            <span class="stat-value" id="customRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="customRangeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

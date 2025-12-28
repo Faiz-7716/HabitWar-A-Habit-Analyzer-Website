@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitWar - Premium Habit Tracker</title>
+    <meta name="description" content="HabitWar - A premium 3D-animated habit tracking dashboard to build better habits and crush your goals.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="home-styles.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="sword"></i>
+                </div>
+                <span class="logo-text">HabitWar</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item active" data-page="daily">
+                    <a href="#daily" class="nav-link">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Daily</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-page="analytics">
+                    <a href="#analytics" class="nav-link">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-page="habits">
+                    <a href="#habits" class="nav-link">
+                        <i data-lucide="target"></i>
+                        <span>Habits</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-page="streaks">
+                    <a href="#streaks" class="nav-link">
+                        <i data-lucide="flame"></i>
+                        <span>Streaks</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-page="gratitude">
+                    <a href="#gratitude" class="nav-link">
+                        <i data-lucide="heart"></i>
+                        <span>Gratitude</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="avatar">
+                    <i data-lucide="user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">Warrior</span>
+                    <span class="user-status">Ready for Battle</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="main-header">
+            <button class="hamburger-menu" id="hamburgerMenu">
+                <i data-lucide="menu"></i>
+            </button>
+            
+            <div class="header-greeting">
+                <h1 class="greeting-text">Good Morning, <span class="warrior-name">Warrior</span>!</h1>
+                <p class="greeting-subtitle">Ready to conquer your habits today?</p>
+            </div>
+            
+            <div class="header-actions">
+                <button class="btn-icon" id="themeToggle" title="Toggle Theme">
+                    <i data-lucide="sun"></i>
+                </button>
+                <button class="btn-icon" id="notificationsBtn" title="Notifications">
+                    <i data-lucide="bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Dynamic Content Container -->
+        <div class="content-container" id="contentContainer">
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState">
+                <div class="loader">
+                    <div class="loader-ring"></div>
+                    <div class="loader-ring"></div>
+                    <div class="loader-ring"></div>
+                </div>
+                <p>Loading your battle dashboard...</p>
+            </div>
+            
+            <!-- Content will be dynamically loaded here -->
+            <div class="page-content" id="pageContent"></div>
+            
+            <!-- Error State -->
+            <div class="error-state" id="errorState" style="display: none;">
+                <div class="error-icon">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <h2>Oops! Something went wrong</h2>
+                <p>Failed to load the dashboard. Please try again.</p>
+                <button class="btn btn-primary" onclick="location.reload()">Reload Page</button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Add Habit Modal -->
+    <div class="modal" id="addHabitModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Habit</h2>
+                <button class="modal-close" id="closeModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form class="modal-body" id="addHabitForm">
+                <div class="form-group">
+                    <label for="habitName">Habit Name</label>
+                    <input type="text" id="habitName" placeholder="e.g., Morning Exercise" required>
+                </div>
+                <div class="form-group">
+                    <label for="habitIcon">Icon</label>
+                    <select id="habitIcon">
+                        <option value="dumbbell">💪 Dumbbell</option>
+                        <option value="book-open">📖 Book</option>
+                        <option value="droplet">💧 Water</option>
+                        <option value="moon">🌙 Sleep</option>
+                        <option value="brain">🧠 Meditation</option>
+                        <option value="utensils">🍽️ Healthy Eating</option>
+                        <option value="bike">🚴 Cycling</option>
+                        <option value="pencil">✏️ Writing</option>
+                        <option value="code">💻 Coding</option>
+                        <option value="music">🎵 Music</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="habitCategory">Category</label>
+                    <select id="habitCategory">
+                        <option value="health">🏃 Health</option>
+                        <option value="productivity">⚡ Productivity</option>
+                        <option value="social">👥 Social</option>
+                        <option value="finance">💰 Finance</option>
+                        <option value="spiritual">🧘 Spiritual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="habitGoal">Monthly Goal (days)</label>
+                    <input type="number" id="habitGoal" min="1" max="31" value="20" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelAddHabit">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit Habit Modal -->
+    <div class="modal" id="editHabitModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Habit</h2>
+                <button class="modal-close" id="closeEditModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form class="modal-body" id="editHabitForm">
+                <input type="hidden" id="editHabitId">
+                <div class="form-group">
+                    <label for="editHabitName">Habit Name</label>
+                    <input type="text" id="editHabitName" placeholder="e.g., Morning Exercise" required>
+                </div>
+                <div class="form-group">
+                    <label for="editHabitIcon">Icon</label>
+                    <select id="editHabitIcon">
+                        <option value="dumbbell">💪 Dumbbell</option>
+                        <option value="book-open">📖 Book</option>
+                        <option value="droplet">💧 Water</option>
+                        <option value="moon">🌙 Sleep</option>
+                        <option value="brain">🧠 Meditation</option>
+                        <option value="utensils">🍽️ Healthy Eating</option>
+                        <option value="bike">🚴 Cycling</option>
+                        <option value="pencil">✏️ Writing</option>
+                        <option value="code">💻 Coding</option>
+                        <option value="music">🎵 Music</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editHabitCategory">Category</label>
+                    <select id="editHabitCategory">
+                        <option value="health">🏃 Health</option>
+                        <option value="productivity">⚡ Productivity</option>
+                        <option value="social">👥 Social</option>
+                        <option value="finance">💰 Finance</option>
+                        <option value="spiritual">🧘 Spiritual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editHabitGoal">Monthly Goal (days)</label>
+                    <input type="number" id="editHabitGoal" min="1" max="31" value="20" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-danger" id="deleteHabitBtn">Delete</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEditHabit">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>

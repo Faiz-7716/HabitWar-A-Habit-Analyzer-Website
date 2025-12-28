@@ -1,0 +1,159 @@
+<!-- Gratitude Journal Page -->
+<div class="gratitude-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Gratitude Journal</h1>
+            <p class="page-subtitle">Reflect on the good in your life ✨</p>
+        </div>
+    </div>
+    
+    <!-- Gratitude Stats -->
+    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: var(--space-xl);">
+        <div class="stat-card">
+            <div class="stat-icon lime">
+                <i data-lucide="book-heart"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Total Entries</span>
+                <span class="stat-value" id="totalEntries">0</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i data-lucide="calendar-check"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">This Month</span>
+                <span class="stat-value" id="monthlyEntries">0</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon warning">
+                <i data-lucide="flame"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Journal Streak</span>
+                <span class="stat-value" id="journalStreak">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid-2">
+        <!-- Add Entry Form -->
+        <div class="card gratitude-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i data-lucide="plus-circle" style="width: 20px; height: 20px; color: var(--accent-lime-dark);"></i>
+                    Today's Gratitude
+                </h3>
+                <span class="card-subtitle" id="todayDate"></span>
+            </div>
+            
+            <form id="gratitudeForm">
+                <div class="form-group">
+                    <label>How are you feeling today?</label>
+                    <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;" id="moodSelector">
+                        <button type="button" class="mood-btn" data-mood="amazing">🤩 Amazing</button>
+                        <button type="button" class="mood-btn" data-mood="good">😊 Good</button>
+                        <button type="button" class="mood-btn" data-mood="okay">😐 Okay</button>
+                        <button type="button" class="mood-btn" data-mood="low">😔 Low</button>
+                        <button type="button" class="mood-btn" data-mood="tough">😢 Tough</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gratitudeEntry">What are you grateful for today?</label>
+                    <textarea id="gratitudeEntry" rows="4" placeholder="Today I'm grateful for..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gratitudeHighlight">Today's highlight</label>
+                    <input type="text" id="gratitudeHighlight" placeholder="Best moment of the day...">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i data-lucide="heart"></i>
+                    Save Entry
+                </button>
+            </form>
+        </div>
+        
+        <!-- Mood Overview -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i data-lucide="smile" style="width: 20px; height: 20px; color: var(--accent-lime-dark);"></i>
+                    Mood Overview
+                </h3>
+            </div>
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="moodChart"></canvas>
+            </div>
+            <div style="display: flex; justify-content: center; gap: var(--space-lg); margin-top: var(--space-md); flex-wrap: wrap;">
+                <span style="display: flex; align-items: center; gap: var(--space-xs); font-size: var(--font-size-xs);">
+                    <span style="width: 12px; height: 12px; background: #10b981; border-radius: 50%;"></span> Amazing
+                </span>
+                <span style="display: flex; align-items: center; gap: var(--space-xs); font-size: var(--font-size-xs);">
+                    <span style="width: 12px; height: 12px; background: #c5ff00; border-radius: 50%;"></span> Good
+                </span>
+                <span style="display: flex; align-items: center; gap: var(--space-xs); font-size: var(--font-size-xs);">
+                    <span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%;"></span> Okay
+                </span>
+                <span style="display: flex; align-items: center; gap: var(--space-xs); font-size: var(--font-size-xs);">
+                    <span style="width: 12px; height: 12px; background: #6366f1; border-radius: 50%;"></span> Low
+                </span>
+                <span style="display: flex; align-items: center; gap: var(--space-xs); font-size: var(--font-size-xs);">
+                    <span style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%;"></span> Tough
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gratitude History -->
+    <div class="card" style="margin-top: var(--space-xl);">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i data-lucide="history" style="width: 20px; height: 20px; color: var(--accent-lime-dark);"></i>
+                Recent Entries
+            </h3>
+            <button class="btn btn-ghost btn-sm" id="viewAllEntries">
+                View All
+                <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+            </button>
+        </div>
+        <div class="gratitude-timeline" id="gratitudeTimeline">
+            <!-- Entries will be rendered here -->
+        </div>
+        
+        <!-- Empty State -->
+        <div id="emptyGratitudeState" style="display: none; text-align: center; padding: var(--space-2xl);">
+            <div style="width: 80px; height: 80px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-lg);">
+                <i data-lucide="heart" style="width: 36px; height: 36px; color: var(--text-tertiary);"></i>
+            </div>
+            <h3 style="color: var(--text-primary); margin-bottom: var(--space-sm);">No entries yet</h3>
+            <p style="color: var(--text-secondary);">Start today by writing what you're grateful for!</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .mood-btn {
+        padding: var(--space-sm) var(--space-md);
+        background: var(--bg-tertiary);
+        border: 2px solid transparent;
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .mood-btn:hover {
+        border-color: var(--accent-lime);
+    }
+    
+    .mood-btn.selected {
+        background: linear-gradient(135deg, var(--accent-lime) 0%, var(--accent-lime-dark) 100%);
+        color: var(--sidebar-bg);
+        border-color: var(--accent-lime);
+    }
+</style>

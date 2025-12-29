@@ -289,13 +289,16 @@
     color: var(--text-tertiary);
 }
 
-/* Motivational Quote */
-.quote-card {
+/* Motivational Quote Carousel */
+.quote-carousel {
     background: linear-gradient(135deg, rgba(197, 255, 0, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
     border: 1px solid rgba(197, 255, 0, 0.2);
     border-radius: var(--radius-lg);
     padding: var(--space-lg);
     margin-top: var(--space-lg);
+    position: relative;
+    min-height: 140px;
+    overflow: hidden;
 }
 
 .quote-icon {
@@ -305,18 +308,92 @@
     margin-bottom: var(--space-sm);
 }
 
+.quote-slides {
+    position: relative;
+}
+
 .quote-text {
     font-size: var(--font-size-lg);
     font-weight: 500;
     color: var(--text-primary);
     font-style: italic;
     line-height: 1.6;
+    transition: all 0.3s ease;
 }
 
 .quote-author {
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
     margin-top: var(--space-sm);
+    transition: all 0.3s ease;
+}
+
+/* Fade animations */
+.quote-text.fade-out,
+.quote-author.fade-out {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.quote-text.fade-up,
+.quote-author.fade-up {
+    animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Carousel Indicators */
+.quote-indicators {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.quote-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.quote-dot:hover {
+    background: var(--text-tertiary);
+    transform: scale(1.2);
+}
+
+.quote-dot.active {
+    background: var(--accent-lime);
+    width: 24px;
+    border-radius: var(--radius-full);
+}
+
+/* Typewriter cursor effect */
+.quote-text.typing::after,
+.quote-author.typing::after {
+    content: '|';
+    animation: blink 0.7s infinite;
+    color: var(--accent-lime);
+    font-weight: 400;
+    margin-left: 2px;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
 }
 
 /* Responsive */

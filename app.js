@@ -17,7 +17,8 @@ const CONFIG = {
         brain: '🧠', utensils: '🍽️', bike: '🚴', pencil: '✏️',
         code: '💻', music: '🎵'
     },
-    QUOTES: [
+    // Use extended quotes from quotes.js, fallback to basic set
+    QUOTES: (typeof MOTIVATIONAL_QUOTES !== 'undefined') ? MOTIVATIONAL_QUOTES : [
         { text: "The secret of your future is hidden in your daily routine.", author: "Mike Murdock" },
         { text: "We are what we repeatedly do. Excellence is not an act, but a habit.", author: "Aristotle" },
         { text: "Small disciplines repeated with consistency lead to great achievements.", author: "John Maxwell" },
@@ -49,21 +50,9 @@ function loadData() {
     const completionsStr = localStorage.getItem(CONFIG.STORAGE_KEYS.COMPLETIONS);
     const gratitudeStr = localStorage.getItem(CONFIG.STORAGE_KEYS.GRATITUDE);
     
-    state.habits = habitsStr ? JSON.parse(habitsStr) : getDefaultHabits();
+    state.habits = habitsStr ? JSON.parse(habitsStr) : [];
     state.completions = completionsStr ? JSON.parse(completionsStr) : {};
     state.gratitude = gratitudeStr ? JSON.parse(gratitudeStr) : [];
-    
-    if (!habitsStr) saveData();
-}
-
-function getDefaultHabits() {
-    return [
-        { id: 1, name: "Morning Exercise", icon: "dumbbell", category: "health", goal: 20 },
-        { id: 2, name: "Read 30 Minutes", icon: "book-open", category: "productivity", goal: 25 },
-        { id: 3, name: "Drink 8 Glasses Water", icon: "droplet", category: "health", goal: 30 },
-        { id: 4, name: "Meditate", icon: "brain", category: "spiritual", goal: 20 },
-        { id: 5, name: "Code Practice", icon: "code", category: "productivity", goal: 25 }
-    ];
 }
 
 function saveData() {
@@ -71,7 +60,6 @@ function saveData() {
     localStorage.setItem(CONFIG.STORAGE_KEYS.COMPLETIONS, JSON.stringify(state.completions));
     localStorage.setItem(CONFIG.STORAGE_KEYS.GRATITUDE, JSON.stringify(state.gratitude));
 }
-
 // =====================================================
 // UI INITIALIZATION
 // =====================================================
@@ -110,9 +98,157 @@ function initializeUI() {
     initializeTheme();
     document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
     
+    // Notifications
+    initializeNotifications();
+    
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+// =====================================================
+// NOTIFICATION SYSTEM
+// =====================================================
+function initializeNotifications() {
+    const btn = document.getElementById('notificationsBtn');
+    const dropdown = document.getElementById('notificationDropdown');
+    const clearBtn = document.getElementById('clearAllNotifications');
+    
+    // Toggle dropdown
+    btn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown?.classList.toggle('active');
+        if (dropdown?.classList.contains('active')) {
+            updateNotifications();
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.notification-wrapper')) {
+            dropdown?.classList.remove('active');
+        }
+    });
+    
+    // Clear all notifications
+    clearBtn?.addEventListener('click', () => {
+        localStorage.setItem('notificationsDismissed', Date.now().toString());
+        updateNotifications();
+        showToast('Notifications cleared', 'success');
+    });
+    
+    // Initial update
+    updateNotifications();
+}
+
+function updateNotifications() {
+    const list = document.getElementById('notificationList');
+    const badge = document.getElementById('notificationBadge');
+    const emptyState = document.getElementById('notificationEmpty');
+    
+    if (!list) return;
+    
+    const notifications = generateNotifications();
+    
+    // Update badge
+    if (badge) {
+        badge.textContent = notifications.length;
+        badge.style.display = notifications.length > 0 ? 'flex' : 'none';
+    }
+    
+    // Update list
+    if (notifications.length === 0) {
+        list.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+    } else {
+        if (emptyState) emptyState.style.display = 'none';
+        list.innerHTML = notifications.map(n => `
+            <div class="notification-item" onclick="${n.action || ''}">
+                <div class="notification-item-icon ${n.type}">
+                    <i data-lucide="${n.icon}"></i>
+                </div>
+                <div class="notification-item-content">
+                    <div class="notification-item-title">${n.title}</div>
+                    <div class="notification-item-text">${n.text}</div>
+                    <div class="notification-item-time">${n.time}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function generateNotifications() {
+    const notifications = [];
+    const today = getTodayString();
+    const todayData = state.completions[today] || {};
+    const dismissedTime = parseInt(localStorage.getItem('notificationsDismissed') || '0');
+    const now = Date.now();
+    
+    // Only show notifications if not dismissed in last hour
+    if (now - dismissedTime < 3600000) {
+        return [];
+    }
+    
+    // Pending habits
+    const pendingHabits = state.habits.filter(h => !todayData[h.id]);
+    if (pendingHabits.length > 0) {
+        notifications.push({
+            type: 'pending',
+            icon: 'clock',
+            title: 'Pending Habits',
+            text: `You have ${pendingHabits.length} habit${pendingHabits.length > 1 ? 's' : ''} left to complete today.`,
+            time: 'Today',
+            action: "switchDashboard('daily')"
+        });
+    }
+    
+    // Streak notification
+    const streak = calculateGlobalStreak();
+    if (streak >= 3) {
+        notifications.push({
+            type: 'streak',
+            icon: 'flame',
+            title: `${streak} Day Streak! 🔥`,
+            text: 'Keep up the momentum! Complete today\'s habits to extend your streak.',
+            time: 'Now',
+            action: ''
+        });
+    }
+    
+    // Motivational tip
+    const tips = [
+        'Start with your easiest habit to build momentum.',
+        'Consistency beats perfection. Show up every day!',
+        'Link new habits to existing routines.',
+        'Celebrate small wins to stay motivated.',
+        'Track your progress to see how far you\'ve come.'
+    ];
+    const tipIndex = new Date().getDay() % tips.length;
+    notifications.push({
+        type: 'tip',
+        icon: 'lightbulb',
+        title: 'Daily Tip',
+        text: tips[tipIndex],
+        time: 'Today',
+        action: ''
+    });
+    
+    // All habits completed
+    if (pendingHabits.length === 0 && state.habits.length > 0) {
+        notifications.unshift({
+            type: 'success',
+            icon: 'trophy',
+            title: 'All Habits Complete! 🎉',
+            text: 'Amazing work! You\'ve conquered all your habits today.',
+            time: 'Just now',
+            action: ''
+        });
+    }
+    
+    return notifications;
+}
+
 
 // =====================================================
 // THEME MANAGEMENT
@@ -321,16 +457,26 @@ function renderTodayHabits() {
         const icon = CONFIG.ICONS[habit.icon] || '📌';
         
         return `
-            <div class="habit-item ${isCompleted ? 'completed' : ''}" data-habit-id="${habit.id}" onclick="toggleHabit(${habit.id})">
-                <div class="habit-checkbox">
-                    <i data-lucide="check"></i>
+            <div class="habit-item ${isCompleted ? 'completed' : ''}" data-habit-id="${habit.id}">
+                <div class="habit-main" onclick="toggleHabit(${habit.id})">
+                    <div class="habit-checkbox">
+                        <i data-lucide="check"></i>
+                    </div>
+                    <div class="habit-icon ${habit.category}">${icon}</div>
+                    <div class="habit-info">
+                        <span class="habit-name">${habit.name}</span>
+                        <span class="habit-category">${habit.category}</span>
+                    </div>
+                    ${streak > 0 ? `<div class="habit-streak"><i data-lucide="flame"></i>${streak}</div>` : ''}
                 </div>
-                <div class="habit-icon ${habit.category}">${icon}</div>
-                <div class="habit-info">
-                    <span class="habit-name">${habit.name}</span>
-                    <span class="habit-category">${habit.category}</span>
+                <div class="habit-actions">
+                    <button class="habit-action-btn edit" onclick="event.stopPropagation(); openEditHabitModal(${habit.id})" title="Edit">
+                        <i data-lucide="pencil"></i>
+                    </button>
+                    <button class="habit-action-btn delete" onclick="event.stopPropagation(); quickDeleteHabit(${habit.id})" title="Delete">
+                        <i data-lucide="trash-2"></i>
+                    </button>
                 </div>
-                ${streak > 0 ? `<div class="habit-streak"><i data-lucide="flame"></i>${streak}</div>` : ''}
             </div>
         `;
     }).join('');
@@ -697,40 +843,73 @@ function renderHabitsGrid() {
         return;
     }
     
-    grid.style.display = 'grid';
+    // Check view mode
+    const isListView = localStorage.getItem('habitsViewMode') === 'list';
+    grid.className = isListView ? 'habits-list-view' : 'habits-grid';
     if (emptyState) emptyState.style.display = 'none';
     
-    grid.innerHTML = filteredHabits.map(habit => {
-        const icon = CONFIG.ICONS[habit.icon] || '📌';
-        const progress = calculateHabitMonthlyProgress(habit.id);
-        
-        return `
-            <div class="habit-card" onclick="openEditHabitModal(${habit.id})">
-                <div class="habit-card-header">
-                    <div class="habit-card-icon ${habit.category}">${icon}</div>
-                    <div>
-                        <div class="habit-card-title">${habit.name}</div>
-                        <div class="habit-card-category">${habit.category}</div>
+    if (isListView) {
+        // List View
+        grid.innerHTML = filteredHabits.map(habit => {
+            const icon = CONFIG.ICONS[habit.icon] || '📌';
+            const progress = calculateHabitMonthlyProgress(habit.id);
+            const streak = calculateHabitStreak(habit.id);
+            
+            return `
+                <div class="habit-list-item" onclick="openEditHabitModal(${habit.id})">
+                    <div class="habit-list-icon ${habit.category}">${icon}</div>
+                    <div class="habit-list-info">
+                        <div class="habit-list-name">${habit.name}</div>
+                        <div class="habit-list-meta">
+                            <span class="habit-list-category">${habit.category}</span>
+                            ${streak > 0 ? `<span class="habit-list-streak">🔥 ${streak} days</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="habit-list-progress">
+                        <div class="progress-bar-mini">
+                            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <span class="habit-list-percent">${Math.round(progress)}%</span>
+                    </div>
+                    <div class="habit-list-goal">Goal: ${habit.goal} days</div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        // Grid View
+        grid.innerHTML = filteredHabits.map(habit => {
+            const icon = CONFIG.ICONS[habit.icon] || '📌';
+            const progress = calculateHabitMonthlyProgress(habit.id);
+            
+            return `
+                <div class="habit-card" onclick="openEditHabitModal(${habit.id})">
+                    <div class="habit-card-header">
+                        <div class="habit-card-icon ${habit.category}">${icon}</div>
+                        <div>
+                            <div class="habit-card-title">${habit.name}</div>
+                            <div class="habit-card-category">${habit.category}</div>
+                        </div>
+                    </div>
+                    <div class="habit-card-progress">
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="progress-label">
+                            <span>${Math.round(progress)}% this month</span>
+                            <span>Goal: ${habit.goal} days</span>
+                        </div>
                     </div>
                 </div>
-                <div class="habit-card-progress">
-                    <div class="progress-bar">
-                        <div class="progress-bar-fill" style="width: ${progress}%"></div>
-                    </div>
-                    <div class="progress-label">
-                        <span>${Math.round(progress)}% this month</span>
-                        <span>Goal: ${habit.goal} days</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+    }
 }
 
 function setupHabitsPageEvents() {
     document.getElementById('openAddHabitModal')?.addEventListener('click', openAddHabitModal);
     document.getElementById('emptyStateAddBtn')?.addEventListener('click', openAddHabitModal);
     
+    // Category filter
     document.querySelectorAll('#categoryFilter .tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('#categoryFilter .tab-btn').forEach(b => b.classList.remove('active'));
@@ -738,7 +917,35 @@ function setupHabitsPageEvents() {
             renderHabitsGrid();
         });
     });
+    
+    // View toggle
+    const toggleBtn = document.getElementById('toggleViewBtn');
+    if (toggleBtn) {
+        updateViewToggleButton();
+        toggleBtn.addEventListener('click', toggleHabitsView);
+    }
 }
+
+function toggleHabitsView() {
+    const currentMode = localStorage.getItem('habitsViewMode') || 'grid';
+    const newMode = currentMode === 'grid' ? 'list' : 'grid';
+    localStorage.setItem('habitsViewMode', newMode);
+    updateViewToggleButton();
+    renderHabitsGrid();
+}
+
+function updateViewToggleButton() {
+    const toggleBtn = document.getElementById('toggleViewBtn');
+    if (!toggleBtn) return;
+    
+    const isListView = localStorage.getItem('habitsViewMode') === 'list';
+    toggleBtn.innerHTML = isListView 
+        ? '<i data-lucide="layout-grid"></i> Grid View'
+        : '<i data-lucide="list"></i> List View';
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 
 function addNewHabit() {
     const name = document.getElementById('habitName').value.trim();
@@ -1128,10 +1335,135 @@ function calculateGratitudeStreak() {
 }
 
 function setRandomQuote() {
-    const quote = CONFIG.QUOTES[Math.floor(Math.random() * CONFIG.QUOTES.length)];
-    setText('dailyQuote', quote.text);
-    setText('quoteAuthor', `— ${quote.author}`);
+    initQuoteCarousel();
 }
+
+// Quote Carousel with Typewriter Effect
+let quoteCarouselInterval = null;
+let currentQuoteIndex = 0;
+let isTyping = false;
+
+function initQuoteCarousel() {
+    const carousel = document.getElementById('quoteCarousel');
+    if (!carousel) return;
+    
+    // Clear any existing interval
+    if (quoteCarouselInterval) clearInterval(quoteCarouselInterval);
+    
+    // Render indicators
+    const indicators = document.getElementById('quoteIndicators');
+    if (indicators) {
+        indicators.innerHTML = CONFIG.QUOTES.map((_, i) => 
+            `<button class="quote-dot ${i === 0 ? 'active' : ''}" onclick="goToQuote(${i})"></button>`
+        ).join('');
+    }
+    
+    // Show first quote immediately (no animation for first load)
+    const quoteText = document.getElementById('dailyQuote');
+    const quoteAuthor = document.getElementById('quoteAuthor');
+    if (quoteText && quoteAuthor) {
+        quoteText.textContent = CONFIG.QUOTES[0].text;
+        quoteAuthor.textContent = `— ${CONFIG.QUOTES[0].author}`;
+    }
+    
+    // Start auto-rotation
+    quoteCarouselInterval = setInterval(() => {
+        if (!isTyping) {
+            currentQuoteIndex = (currentQuoteIndex + 1) % CONFIG.QUOTES.length;
+            showQuote(currentQuoteIndex);
+        }
+    }, 8000); // Longer interval to account for typing animation
+}
+
+function showQuote(index) {
+    if (isTyping) return;
+    isTyping = true;
+    
+    const quoteText = document.getElementById('dailyQuote');
+    const quoteAuthor = document.getElementById('quoteAuthor');
+    const dots = document.querySelectorAll('.quote-dot');
+    
+    if (!quoteText || !quoteAuthor) {
+        isTyping = false;
+        return;
+    }
+    
+    const newQuote = CONFIG.QUOTES[index];
+    currentQuoteIndex = index;
+    
+    // Update dots
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+    
+    // Fade out author first
+    quoteAuthor.classList.add('fade-out');
+    
+    // Erase current quote text (backspace effect)
+    eraseText(quoteText, () => {
+        // Type new quote text
+        typeText(quoteText, newQuote.text, 30, () => {
+            // Fade in author
+            quoteAuthor.textContent = `— ${newQuote.author}`;
+            quoteAuthor.classList.remove('fade-out');
+            quoteAuthor.classList.add('fade-up');
+            
+            setTimeout(() => {
+                quoteAuthor.classList.remove('fade-up');
+                isTyping = false;
+            }, 500);
+        });
+    }, 15);
+}
+
+function eraseText(element, callback, speed = 20) {
+    const text = element.textContent;
+    let i = text.length;
+    
+    element.classList.add('typing');
+    
+    const eraseInterval = setInterval(() => {
+        if (i > 0) {
+            element.textContent = text.substring(0, i - 1);
+            i--;
+        } else {
+            clearInterval(eraseInterval);
+            element.classList.remove('typing');
+            if (callback) callback();
+        }
+    }, speed);
+}
+
+function typeText(element, text, speed = 30, callback) {
+    let i = 0;
+    element.textContent = '';
+    element.classList.add('typing');
+    
+    const typeInterval = setInterval(() => {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+        } else {
+            clearInterval(typeInterval);
+            element.classList.remove('typing');
+            if (callback) callback();
+        }
+    }, speed);
+}
+
+function goToQuote(index) {
+    if (isTyping || index === currentQuoteIndex) return;
+    
+    // Reset interval
+    if (quoteCarouselInterval) clearInterval(quoteCarouselInterval);
+    showQuote(index);
+    quoteCarouselInterval = setInterval(() => {
+        if (!isTyping) {
+            currentQuoteIndex = (currentQuoteIndex + 1) % CONFIG.QUOTES.length;
+            showQuote(currentQuoteIndex);
+        }
+    }, 8000);
+}
+
+
 
 function showToast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
@@ -1162,7 +1494,20 @@ function initParticles() {
     });
 }
 
+// Quick delete habit from daily view
+function quickDeleteHabit(habitId) {
+    if (!confirm('Are you sure you want to delete this habit?')) return;
+    
+    state.habits = state.habits.filter(h => h.id !== habitId);
+    saveData();
+    showToast('Habit deleted', 'warning');
+    loadDailyDashboard();
+    updateNotifications();
+}
+
 // Make functions globally available
 window.toggleHabit = toggleHabit;
 window.openEditHabitModal = openEditHabitModal;
 window.toggleTheme = toggleTheme;
+window.quickDeleteHabit = quickDeleteHabit;
+window.goToQuote = goToQuote;

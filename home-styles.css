@@ -168,7 +168,38 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-lg);
+    padding: var(--space-xl);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    background: linear-gradient(145deg, transparent 0%, rgba(197, 255, 0, 0.03) 100%);
+    border-radius: var(--radius-lg);
+    position: relative;
+}
+
+.habit-wheel-container::before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    opacity: 0.4;
+    pointer-events: none;
+    animation: wheel-pulse 4s ease-in-out infinite;
+}
+
+@keyframes wheel-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.1); opacity: 0.5; }
+}
+
+.habit-wheel-container .chart-container {
+    width: 100%;
+    max-width: 220px;
+    aspect-ratio: 1;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 4px 20px rgba(197, 255, 0, 0.2));
 }
 
 /* Today's Progress */
@@ -432,5 +463,14 @@
     
     .progress-percentage {
         font-size: var(--font-size-2xl);
+    }
+    
+    /* Habit wheel mobile sizing */
+    .habit-wheel-container {
+        padding: var(--space-md);
+    }
+    
+    .habit-wheel-container .chart-container {
+        max-width: 200px;
     }
 }

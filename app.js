@@ -93,6 +93,7 @@ function initializeUI() {
     
     // Modals
     setupModals();
+    setupImportModal();
     
     // Theme toggle
     initializeTheme();
@@ -909,6 +910,10 @@ function setupHabitsPageEvents() {
     document.getElementById('openAddHabitModal')?.addEventListener('click', openAddHabitModal);
     document.getElementById('emptyStateAddBtn')?.addEventListener('click', openAddHabitModal);
     
+    // Export/Import buttons
+    document.getElementById('exportDataBtn')?.addEventListener('click', exportHabitData);
+    document.getElementById('importDataBtn')?.addEventListener('click', openImportModal);
+    
     // Category filter
     document.querySelectorAll('#categoryFilter .tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1505,9 +1510,281 @@ function quickDeleteHabit(habitId) {
     updateNotifications();
 }
 
+// =====================================================
+// EXPORT/IMPORT FUNCTIONALITY
+// =====================================================
+
+// Store imported data temporarily for confirmation
+let pendingImportData = null;
+
+function exportHabitData() {
+    const exportData = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        appName: 'HabitWar',
+        habits: state.habits,
+        completions: state.completions,
+        gratitude: state.gratitude
+    };
+    
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `habitwar-export-${today}.json`;
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast(`Data exported to ${filename}`, 'success');
+}
+
+function openImportModal() {
+    pendingImportData = null;
+    document.getElementById('importFile').value = '';
+    document.getElementById('importPreview').style.display = 'none';
+    document.getElementById('replaceWarning').style.display = 'none';
+    document.getElementById('confirmImport').disabled = true;
+    document.querySelector('input[name="importMode"][value="merge"]').checked = true;
+    document.getElementById('importDataModal')?.classList.add('active');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function closeImportModal() {
+    document.getElementById('importDataModal')?.classList.remove('active');
+    pendingImportData = null;
+}
+
+function setupImportModal() {
+    const modal = document.getElementById('importDataModal');
+    const fileInput = document.getElementById('importFile');
+    const uploadArea = document.getElementById('fileUploadArea');
+    const closeBtn = document.getElementById('closeImportModal');
+    const cancelBtn = document.getElementById('cancelImport');
+    const confirmBtn = document.getElementById('confirmImport');
+    const modeRadios = document.querySelectorAll('input[name="importMode"]');
+    
+    // Close modal
+    [closeBtn, cancelBtn].forEach(btn => {
+        btn?.addEventListener('click', closeImportModal);
+    });
+    
+    modal?.querySelector('.modal-backdrop')?.addEventListener('click', closeImportModal);
+    
+    // File upload area click
+    uploadArea?.addEventListener('click', () => fileInput?.click());
+    
+    // Drag and drop
+    uploadArea?.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--accent-primary)';
+        uploadArea.style.background = 'rgba(197, 255, 0, 0.05)';
+    });
+    
+    uploadArea?.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--border-primary)';
+        uploadArea.style.background = 'transparent';
+    });
+    
+    uploadArea?.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--border-primary)';
+        uploadArea.style.background = 'transparent';
+        
+        const file = e.dataTransfer.files[0];
+        if (file) handleFileSelect(file);
+    });
+    
+    // File input change
+    fileInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleFileSelect(file);
+    });
+    
+    // Import mode change
+    modeRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const isReplace = document.querySelector('input[name="importMode"]:checked')?.value === 'replace';
+            document.getElementById('replaceWarning').style.display = isReplace ? 'block' : 'none';
+        });
+    });
+    
+    // Confirm import
+    confirmBtn?.addEventListener('click', confirmImport);
+}
+
+function handleFileSelect(file) {
+    if (!file.name.endsWith('.json')) {
+        showToast('Please select a valid JSON file', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            const validation = validateImportData(data);
+            
+            if (!validation.valid) {
+                showToast(validation.error, 'error');
+                return;
+            }
+            
+            pendingImportData = data;
+            showImportPreview(file.name, data);
+            document.getElementById('confirmImport').disabled = false;
+            
+        } catch (err) {
+            showToast('Invalid JSON file. Please select a valid HabitWar export file.', 'error');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function validateImportData(data) {
+    if (!data || typeof data !== 'object') {
+        return { valid: false, error: 'Invalid file format' };
+    }
+    
+    // Check for required fields
+    if (!Array.isArray(data.habits)) {
+        return { valid: false, error: 'Invalid file: missing habits data' };
+    }
+    
+    if (data.completions && typeof data.completions !== 'object') {
+        return { valid: false, error: 'Invalid file: corrupted completions data' };
+    }
+    
+    if (data.gratitude && !Array.isArray(data.gratitude)) {
+        return { valid: false, error: 'Invalid file: corrupted gratitude data' };
+    }
+    
+    // Validate habit structure
+    for (const habit of data.habits) {
+        if (!habit.id || !habit.name) {
+            return { valid: false, error: 'Invalid file: habit data is corrupted' };
+        }
+    }
+    
+    return { valid: true };
+}
+
+function showImportPreview(filename, data) {
+    const preview = document.getElementById('importPreview');
+    const fileNameEl = document.getElementById('importFileName');
+    const statsEl = document.getElementById('importStats');
+    
+    fileNameEl.textContent = filename;
+    
+    const habitCount = data.habits?.length || 0;
+    const completionDays = Object.keys(data.completions || {}).length;
+    const gratitudeCount = data.gratitude?.length || 0;
+    
+    statsEl.innerHTML = `
+        <div style="text-align: center; padding: var(--space-sm); background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <div style="font-size: var(--font-size-xl); font-weight: 700; color: var(--accent-primary);">${habitCount}</div>
+            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">Habits</div>
+        </div>
+        <div style="text-align: center; padding: var(--space-sm); background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <div style="font-size: var(--font-size-xl); font-weight: 700; color: var(--accent-primary);">${completionDays}</div>
+            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">Days Tracked</div>
+        </div>
+        <div style="text-align: center; padding: var(--space-sm); background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <div style="font-size: var(--font-size-xl); font-weight: 700; color: var(--accent-primary);">${gratitudeCount}</div>
+            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">Gratitude Entries</div>
+        </div>
+    `;
+    
+    preview.style.display = 'block';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function confirmImport() {
+    if (!pendingImportData) {
+        showToast('No data to import', 'error');
+        return;
+    }
+    
+    const mode = document.querySelector('input[name="importMode"]:checked')?.value || 'merge';
+    
+    if (mode === 'replace') {
+        if (!confirm('Are you sure you want to replace all existing data? This cannot be undone.')) {
+            return;
+        }
+        replaceData(pendingImportData);
+    } else {
+        mergeData(pendingImportData);
+    }
+    
+    closeImportModal();
+    saveData();
+    
+    // Refresh current page
+    loadPage(state.currentPage);
+    updateNotifications();
+    
+    showToast(`Data imported successfully (${mode} mode)`, 'success');
+}
+
+function mergeData(importedData) {
+    // Merge habits (add new ones, skip duplicates by ID)
+    const existingIds = new Set(state.habits.map(h => h.id));
+    const newHabits = importedData.habits.filter(h => !existingIds.has(h.id));
+    
+    // If there are duplicate IDs, generate new IDs for imported habits
+    const maxId = Math.max(0, ...state.habits.map(h => h.id));
+    let nextId = maxId + 1;
+    
+    newHabits.forEach(habit => {
+        if (existingIds.has(habit.id)) {
+            habit.id = nextId++;
+        }
+        state.habits.push(habit);
+    });
+    
+    // Merge completions
+    if (importedData.completions) {
+        for (const [date, dayData] of Object.entries(importedData.completions)) {
+            if (!state.completions[date]) {
+                state.completions[date] = {};
+            }
+            Object.assign(state.completions[date], dayData);
+        }
+    }
+    
+    // Merge gratitude (add all, avoid duplicates by date+content)
+    if (importedData.gratitude) {
+        const existingGratitude = new Set(
+            state.gratitude.map(g => `${g.date}-${g.content}`)
+        );
+        
+        for (const entry of importedData.gratitude) {
+            const key = `${entry.date}-${entry.content}`;
+            if (!existingGratitude.has(key)) {
+                state.gratitude.push(entry);
+            }
+        }
+    }
+}
+
+function replaceData(importedData) {
+    state.habits = importedData.habits || [];
+    state.completions = importedData.completions || {};
+    state.gratitude = importedData.gratitude || [];
+}
+
 // Make functions globally available
 window.toggleHabit = toggleHabit;
 window.openEditHabitModal = openEditHabitModal;
 window.toggleTheme = toggleTheme;
 window.quickDeleteHabit = quickDeleteHabit;
 window.goToQuote = goToQuote;
+window.exportHabitData = exportHabitData;
+window.openImportModal = openImportModal;

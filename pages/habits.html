@@ -5,7 +5,15 @@
             <h1 class="page-title">My Habits</h1>
             <p class="page-subtitle">Manage and track your daily battles</p>
         </div>
-        <div style="display: flex; gap: var(--space-sm);">
+        <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+            <button class="btn btn-ghost" id="exportDataBtn" title="Export your habit data">
+                <i data-lucide="download"></i>
+                Export
+            </button>
+            <button class="btn btn-ghost" id="importDataBtn" title="Import habit data">
+                <i data-lucide="upload"></i>
+                Import
+            </button>
             <button class="btn btn-secondary" id="toggleViewBtn">
                 <i data-lucide="layout-grid"></i>
                 Grid View

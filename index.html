@@ -269,6 +269,76 @@
         </div>
     </div>
     
+    <!-- Import Data Modal -->
+    <div class="modal" id="importDataModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Data</h2>
+                <button class="modal-close" id="closeImportModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Import Mode</label>
+                    <div class="import-mode-options" style="display: flex; gap: var(--space-md); margin-top: var(--space-sm);">
+                        <label class="import-mode-option" style="display: flex; align-items: center; gap: var(--space-sm); cursor: pointer; padding: var(--space-md); border: 2px solid var(--border-primary); border-radius: var(--radius-lg); flex: 1; transition: all 0.2s ease;">
+                            <input type="radio" name="importMode" value="merge" checked style="accent-color: var(--accent-primary);">
+                            <div>
+                                <strong style="color: var(--text-primary);">Merge</strong>
+                                <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin: 0;">Add imported data without removing existing habits</p>
+                            </div>
+                        </label>
+                        <label class="import-mode-option" style="display: flex; align-items: center; gap: var(--space-sm); cursor: pointer; padding: var(--space-md); border: 2px solid var(--border-primary); border-radius: var(--radius-lg); flex: 1; transition: all 0.2s ease;">
+                            <input type="radio" name="importMode" value="replace" style="accent-color: var(--accent-primary);">
+                            <div>
+                                <strong style="color: var(--text-primary);">Replace</strong>
+                                <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin: 0;">Replace all existing data with imported data</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="importFile">Select File</label>
+                    <div class="file-upload-area" id="fileUploadArea" style="border: 2px dashed var(--border-primary); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                        <i data-lucide="upload-cloud" style="width: 48px; height: 48px; color: var(--text-tertiary); margin-bottom: var(--space-md);"></i>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">Drag & drop your JSON file here, or click to browse</p>
+                        <p style="font-size: var(--font-size-sm); color: var(--text-tertiary);">Only .json files exported from HabitWar are supported</p>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </div>
+                </div>
+                
+                <!-- File Preview -->
+                <div id="importPreview" style="display: none; background: var(--bg-tertiary); border-radius: var(--radius-lg); padding: var(--space-md); margin-top: var(--space-md);">
+                    <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                        <i data-lucide="file-check" style="color: var(--success);"></i>
+                        <span id="importFileName" style="color: var(--text-primary); font-weight: 500;"></span>
+                    </div>
+                    <div id="importStats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm);"></div>
+                </div>
+                
+                <!-- Warning for Replace mode -->
+                <div id="replaceWarning" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: var(--radius-lg); padding: var(--space-md); margin-top: var(--space-md);">
+                    <div style="display: flex; align-items: center; gap: var(--space-sm); color: var(--danger);">
+                        <i data-lucide="alert-triangle"></i>
+                        <strong>Warning</strong>
+                    </div>
+                    <p style="color: var(--text-secondary); margin: var(--space-sm) 0 0 0; font-size: var(--font-size-sm);">Replace mode will delete all your current habits, completions, and gratitude entries. This action cannot be undone.</p>
+                </div>
+                
+                <div class="modal-actions" style="margin-top: var(--space-lg);">
+                    <button type="button" class="btn btn-secondary" id="cancelImport">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmImport" disabled>
+                        <i data-lucide="download"></i>
+                        Import Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Toast Notification -->
     <div class="toast-container" id="toastContainer"></div>
     

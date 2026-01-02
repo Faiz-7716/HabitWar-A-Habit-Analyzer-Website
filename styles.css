@@ -206,6 +206,63 @@ img {
 }
 
 /* =====================================================
+   PREMIUM ANIMATED SCROLLBAR
+   ===================================================== */
+
+/* Webkit Browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent-lime) 0%, var(--accent-lime-dark) 100%);
+    border-radius: 10px;
+    border: 2px solid var(--bg-tertiary);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(197, 255, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--accent-lime-hover) 0%, var(--accent-lime) 100%);
+    box-shadow: 0 0 20px rgba(197, 255, 0, 0.6), 0 0 40px rgba(197, 255, 0, 0.3);
+    border: 1px solid var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--accent-lime);
+    box-shadow: 0 0 30px rgba(197, 255, 0, 0.8);
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--bg-tertiary);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-lime) var(--bg-tertiary);
+}
+
+/* Dark Theme Scrollbar */
+body[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: rgba(15, 15, 26, 0.8);
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    box-shadow: 0 0 15px rgba(197, 255, 0, 0.4);
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    box-shadow: 0 0 25px rgba(197, 255, 0, 0.7), 0 0 50px rgba(197, 255, 0, 0.4);
+}
+
+/* =====================================================
    PREMIUM ANIMATED SIDEBAR
    ===================================================== */
 

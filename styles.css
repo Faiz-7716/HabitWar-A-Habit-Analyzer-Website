@@ -221,10 +221,9 @@ img {
     flex-direction: column;
     z-index: 1000;
     overflow: hidden;
-    /* Ultra smooth spring-like transition */
-    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-                box-shadow 0.5s ease-out,
-                transform 0.3s ease;
+    /* 2 second smooth drawer animation */
+    transition: width 2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 1.5s ease-out;
 }
 
 .sidebar:hover {
@@ -278,18 +277,14 @@ img {
     padding: var(--space-md);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;  /* Always left-aligned for drawer effect */
     min-height: 70px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
     z-index: 1;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sidebar:hover .sidebar-header {
-    padding: var(--space-lg);
-    justify-content: space-between;
-}
+/* No position change on hover - drawer just reveals more */
 
 /* Logo */
 .logo {
@@ -323,22 +318,8 @@ img {
     z-index: 1;
 }
 
-.logo-ring {
-    position: absolute;
-    inset: -4px;
-    border: 2px solid transparent;
-    border-top-color: var(--accent-lime);
-    border-radius: var(--radius-md);
-    animation: ringRotate 4s linear infinite;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
 
-.sidebar:hover .logo-ring { opacity: 1; }
 
-@keyframes ringRotate {
-    to { transform: rotate(360deg); }
-}
 
 @keyframes logoPulse {
     0%, 100% { box-shadow: 0 0 25px rgba(197, 255, 0, 0.4), 0 0 50px rgba(197, 255, 0, 0.2); }
@@ -356,9 +337,9 @@ img {
     width: 0;
     opacity: 0;
     overflow: hidden;
-    /* Smooth spring transition matching sidebar */
-    transition: width 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s, 
-                opacity 0.4s ease-out 0.1s;
+    /* Match 2s drawer animation */
+    transition: width 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s, 
+                opacity 1.5s ease-out 0.3s;
 }
 
 .sidebar:hover .logo-text { 
@@ -406,21 +387,17 @@ img {
 .nav-item {
     position: relative;
     opacity: 0;
-    transform: translateX(-30px) scale(0.9);
-    animation: navSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: navFadeIn 0.5s ease-out forwards;
 }
 
-.nav-item:nth-child(1) { animation-delay: 0.1s; }
-.nav-item:nth-child(2) { animation-delay: 0.18s; }
-.nav-item:nth-child(3) { animation-delay: 0.26s; }
-.nav-item:nth-child(4) { animation-delay: 0.34s; }
-.nav-item:nth-child(5) { animation-delay: 0.42s; }
+.nav-item:nth-child(1) { animation-delay: 0.05s; }
+.nav-item:nth-child(2) { animation-delay: 0.1s; }
+.nav-item:nth-child(3) { animation-delay: 0.15s; }
+.nav-item:nth-child(4) { animation-delay: 0.2s; }
+.nav-item:nth-child(5) { animation-delay: 0.25s; }
 
-@keyframes navSlideIn {
-    to { 
-        opacity: 1; 
-        transform: translateX(0) scale(1); 
-    }
+@keyframes navFadeIn {
+    to { opacity: 1; }
 }
 
 .nav-link {
@@ -431,11 +408,11 @@ img {
     border-radius: var(--radius-md);
     color: var(--text-muted);
     font-weight: 500;
-    justify-content: center;
+    justify-content: flex-start;  /* Always left-aligned */
     min-height: 48px;
     position: relative;
     overflow: hidden;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: color 0.3s ease, background 0.3s ease;
 }
 
 /* Hover glow background */
@@ -472,7 +449,7 @@ img {
     100% { transform: translate(-50%, -50%) scale(40); opacity: 0; }
 }
 
-.sidebar:hover .nav-link { justify-content: flex-start; }
+/* Icons stay in place - no justify change needed */
 
 .nav-icon {
     width: 24px;
@@ -497,9 +474,9 @@ img {
     width: 0;
     opacity: 0;
     overflow: hidden;
-    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s, 
-                opacity 0.35s ease-out 0.1s,
-                transform 0.3s ease;
+    /* Match 2s drawer animation */
+    transition: width 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s, 
+                opacity 1.5s ease-out 0.3s;
 }
 
 .sidebar:hover .nav-text { width: 100px; opacity: 1; }
@@ -518,17 +495,16 @@ img {
                 width 0.3s ease;
 }
 
-/* Hover Effects */
+/* Hover Effects - No position change, just visual feedback */
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.06);
     color: var(--text-light);
-    transform: translateX(4px);
 }
 
 .nav-link:hover::before { opacity: 1; }
 
 .nav-link:hover .nav-icon { 
-    transform: scale(1.2) rotate(-5deg);
+    transform: scale(1.15);
     filter: drop-shadow(0 0 8px rgba(197, 255, 0, 0.5));
 }
 
@@ -538,9 +514,9 @@ img {
 
 @keyframes iconBounce {
     0%, 100% { transform: translateY(0); }
-    25% { transform: translateY(-3px) rotate(5deg); }
+    25% { transform: translateY(-2px); }
     50% { transform: translateY(1px); }
-    75% { transform: translateY(-1px) rotate(-3deg); }
+    75% { transform: translateY(-1px); }
 }
 
 .nav-link:hover .nav-indicator { 
@@ -548,11 +524,7 @@ img {
     box-shadow: 0 0 12px rgba(197, 255, 0, 0.6);
 }
 
-.nav-link:hover .nav-text {
-    transform: translateX(2px);
-}
-
-/* Active State */
+/* Active State - no position change */
 .nav-item.active .nav-link {
     background: linear-gradient(135deg, var(--accent-lime) 0%, var(--accent-lime-dark) 100%);
     color: var(--sidebar-bg);
@@ -560,7 +532,6 @@ img {
         0 0 30px rgba(197, 255, 0, 0.5), 
         0 0 60px rgba(197, 255, 0, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateX(2px);
 }
 
 .nav-item.active .nav-link::before { opacity: 0; }
@@ -608,10 +579,7 @@ img {
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
     z-index: 1;
-    transition: padding 0.5s ease;
 }
-
-.sidebar:hover .sidebar-footer { padding: var(--space-md) var(--space-lg); }
 
 .user-profile {
     display: flex;
@@ -619,13 +587,7 @@ img {
     gap: var(--space-md);
     padding: var(--space-sm);
     border-radius: var(--radius-md);
-    justify-content: center;
-    transition: all 0.4s ease;
-}
-
-.sidebar:hover .user-profile {
-    justify-content: flex-start;
-    background: rgba(255, 255, 255, 0.03);
+    justify-content: flex-start;  /* Always left-aligned for drawer effect */
 }
 
 .avatar {
@@ -676,9 +638,9 @@ img {
     width: 0;
     opacity: 0;
     overflow: hidden;
-    /* Spring transition for smooth reveal */
-    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s, 
-                opacity 0.4s ease-out 0.15s;
+    /* Match 2s drawer animation */
+    transition: width 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s, 
+                opacity 1.5s ease-out 0.3s;
 }
 
 .sidebar:hover .user-info { width: 120px; opacity: 1; }

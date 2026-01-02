@@ -41,7 +41,11 @@ let state = {
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     initializeUI();
-    loadPage('daily');
+    
+    // Restore last visited page or default to 'daily'
+    const savedPage = localStorage.getItem('habitwar_current_page') || 'daily';
+    switchDashboard(savedPage);
+    
     initParticles();
 });
 
@@ -69,31 +73,41 @@ function initializeUI() {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const page = item.dataset.page;
+            
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Close mobile menu
+            document.getElementById('sidebar')?.classList.remove('active');
+            document.getElementById('mobileOverlay')?.classList.remove('active');
+            
             switchDashboard(page);
         });
     });
     
-    // Mobile menu
+    // Mobile menu toggle
     const hamburger = document.getElementById('hamburgerMenu');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('mobileOverlay');
     const closeBtn = document.getElementById('closeSidebar');
     
     hamburger?.addEventListener('click', () => {
-        sidebar.classList.add('active');
-        overlay.classList.add('active');
+        sidebar?.classList.add('active');
+        overlay?.classList.add('active');
     });
     
     [overlay, closeBtn].forEach(el => {
         el?.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
+            sidebar?.classList.remove('active');
+            overlay?.classList.remove('active');
         });
     });
     
     // Modals
     setupModals();
     setupImportModal();
+    setupDeleteConfirmModal();
     
     // Theme toggle
     initializeTheme();
@@ -385,13 +399,8 @@ async function loadPage(page) {
 }
 
 function switchDashboard(page) {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.toggle('active', item.dataset.page === page);
-    });
-    
-    // Close mobile menu
-    document.getElementById('sidebar')?.classList.remove('active');
-    document.getElementById('mobileOverlay')?.classList.remove('active');
+    // Save current page to localStorage
+    localStorage.setItem('habitwar_current_page', page);
     
     destroyCharts();
     state.currentPage = page;
@@ -492,8 +501,29 @@ function toggleHabit(habitId) {
     state.completions[today][habitId] = !state.completions[today][habitId];
     saveData();
     
-    // Update UI
-    loadDailyDashboard();
+    // Update stats
+    const todayData = state.completions[today] || {};
+    const completed = state.habits.filter(h => todayData[h.id]).length;
+    const total = state.habits.length;
+    const pending = total - completed;
+    const score = total > 0 ? Math.round((completed / total) * 100) : 0;
+    
+    setText('completedCount', completed);
+    setText('pendingCount', pending);
+    setText('dailyScore', `${score}%`);
+    
+    // Update habit item UI
+    const habitItem = document.querySelector(`.habit-item[data-habit-id="${habitId}"]`);
+    if (habitItem) {
+        habitItem.classList.toggle('completed', state.completions[today][habitId]);
+    }
+    
+    // Update chart live with animation
+    updateHabitWheelChart();
+    
+    // Update notifications
+    updateNotifications();
+    
     showToast(state.completions[today][habitId] ? 'Habit completed! 🎉' : 'Habit unchecked', 'success');
 }
 
@@ -504,23 +534,83 @@ function createHabitWheelChart() {
     const today = getTodayString();
     const todayData = state.completions[today] || {};
     
+    // Category colors - vibrant for completed, faded for pending
+    const categoryColors = {
+        health: { active: '#22c55e', faded: 'rgba(34, 197, 94, 0.3)' },
+        productivity: { active: '#8b5cf6', faded: 'rgba(139, 92, 246, 0.3)' },
+        social: { active: '#ec4899', faded: 'rgba(236, 72, 153, 0.3)' },
+        finance: { active: '#f59e0b', faded: 'rgba(245, 158, 11, 0.3)' },
+        spiritual: { active: '#06b6d4', faded: 'rgba(6, 182, 212, 0.3)' }
+    };
+    
+    const defaultColor = { active: '#c5ff00', faded: 'rgba(197, 255, 0, 0.3)' };
+    
     const labels = state.habits.map(h => h.name);
-    const data = state.habits.map(h => todayData[h.id] ? 100 : 30);
-    const colors = state.habits.map(h => todayData[h.id] ? '#c5ff00' : '#334155');
+    const data = state.habits.map(h => todayData[h.id] ? 100 : 40);
+    const colors = state.habits.map(h => {
+        const colorSet = categoryColors[h.category] || defaultColor;
+        return todayData[h.id] ? colorSet.active : colorSet.faded;
+    });
     
     state.charts.habitWheel = new Chart(canvas, {
         type: 'polarArea',
         data: {
             labels,
-            datasets: [{ data, backgroundColor: colors, borderWidth: 0 }]
+            datasets: [{ 
+                data, 
+                backgroundColor: colors, 
+                borderWidth: 2,
+                borderColor: 'rgba(255, 255, 255, 0.1)'
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const habit = state.habits[context.dataIndex];
+                            const isCompleted = todayData[habit.id];
+                            return `${habit.name}: ${isCompleted ? '✓ Completed' : '○ Pending'}`;
+                        }
+                    }
+                }
+            },
             scales: { r: { display: false } }
         }
     });
+}
+
+// Live update chart without recreation
+function updateHabitWheelChart() {
+    if (!state.charts.habitWheel) return;
+    
+    const today = getTodayString();
+    const todayData = state.completions[today] || {};
+    
+    const categoryColors = {
+        health: { active: '#22c55e', faded: 'rgba(34, 197, 94, 0.3)' },
+        productivity: { active: '#8b5cf6', faded: 'rgba(139, 92, 246, 0.3)' },
+        social: { active: '#ec4899', faded: 'rgba(236, 72, 153, 0.3)' },
+        finance: { active: '#f59e0b', faded: 'rgba(245, 158, 11, 0.3)' },
+        spiritual: { active: '#06b6d4', faded: 'rgba(6, 182, 212, 0.3)' }
+    };
+    const defaultColor = { active: '#c5ff00', faded: 'rgba(197, 255, 0, 0.3)' };
+    
+    const newData = state.habits.map(h => todayData[h.id] ? 100 : 40);
+    const newColors = state.habits.map(h => {
+        const colorSet = categoryColors[h.category] || defaultColor;
+        return todayData[h.id] ? colorSet.active : colorSet.faded;
+    });
+    
+    // Update chart data
+    state.charts.habitWheel.data.datasets[0].data = newData;
+    state.charts.habitWheel.data.datasets[0].backgroundColor = newColors;
+    
+    // Animate the update
+    state.charts.habitWheel.update('active');
 }
 
 // =====================================================
@@ -991,15 +1081,17 @@ function saveEditedHabit() {
 
 function deleteHabit() {
     const id = parseInt(document.getElementById('editHabitId').value);
-    if (!confirm('Are you sure you want to delete this habit?')) return;
+    const habit = state.habits.find(h => h.id === id);
     
-    state.habits = state.habits.filter(h => h.id !== id);
-    saveData();
-    closeAllModals();
-    showToast('Habit deleted', 'warning');
-    
-    if (state.currentPage === 'habits') renderHabitsGrid();
-    else if (state.currentPage === 'daily') loadDailyDashboard();
+    showDeleteConfirmation(habit?.name || 'this habit', () => {
+        state.habits = state.habits.filter(h => h.id !== id);
+        saveData();
+        closeAllModals();
+        showToast('Habit deleted', 'warning');
+        
+        if (state.currentPage === 'habits') renderHabitsGrid();
+        else if (state.currentPage === 'daily') loadDailyDashboard();
+    });
 }
 
 // =====================================================
@@ -1501,13 +1593,55 @@ function initParticles() {
 
 // Quick delete habit from daily view
 function quickDeleteHabit(habitId) {
-    if (!confirm('Are you sure you want to delete this habit?')) return;
+    const habit = state.habits.find(h => h.id === habitId);
     
-    state.habits = state.habits.filter(h => h.id !== habitId);
-    saveData();
-    showToast('Habit deleted', 'warning');
-    loadDailyDashboard();
-    updateNotifications();
+    showDeleteConfirmation(habit?.name || 'this habit', () => {
+        state.habits = state.habits.filter(h => h.id !== habitId);
+        saveData();
+        showToast('Habit deleted', 'warning');
+        loadDailyDashboard();
+        updateNotifications();
+    });
+}
+
+// =====================================================
+// DELETE CONFIRMATION MODAL
+// =====================================================
+let pendingDeleteCallback = null;
+
+function showDeleteConfirmation(habitName, onConfirm) {
+    pendingDeleteCallback = onConfirm;
+    
+    // Set habit name in modal
+    document.getElementById('deleteHabitName').textContent = habitName;
+    
+    // Show modal
+    document.getElementById('deleteConfirmModal')?.classList.add('active');
+    
+    // Refresh icons
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function setupDeleteConfirmModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    const cancelBtn = document.getElementById('cancelDelete');
+    const confirmBtn = document.getElementById('confirmDelete');
+    const backdrop = modal?.querySelector('.modal-backdrop');
+    
+    const closeModal = () => {
+        modal?.classList.remove('active');
+        pendingDeleteCallback = null;
+    };
+    
+    cancelBtn?.addEventListener('click', closeModal);
+    backdrop?.addEventListener('click', closeModal);
+    
+    confirmBtn?.addEventListener('click', () => {
+        if (pendingDeleteCallback) {
+            pendingDeleteCallback();
+        }
+        closeModal();
+    });
 }
 
 // =====================================================

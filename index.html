@@ -35,12 +35,16 @@
     <!-- Mobile Menu Overlay -->
     <div class="mobile-overlay" id="mobileOverlay"></div>
     
-    <!-- Sidebar Navigation -->
+    <!-- Premium Animated Sidebar -->
     <aside class="sidebar" id="sidebar">
+        <div class="sidebar-glow"></div>
+        <div class="sidebar-particles"></div>
+        
         <div class="sidebar-header">
             <div class="logo">
                 <div class="logo-icon">
                     <i data-lucide="sword"></i>
+                    <div class="logo-ring"></div>
                 </div>
                 <span class="logo-text">HabitWar</span>
             </div>
@@ -53,32 +57,37 @@
             <ul class="nav-list">
                 <li class="nav-item active" data-page="daily">
                     <a href="#daily" class="nav-link">
-                        <i data-lucide="layout-dashboard"></i>
-                        <span>Daily</span>
+                        <div class="nav-icon"><i data-lucide="layout-dashboard"></i></div>
+                        <span class="nav-text">Daily</span>
+                        <div class="nav-indicator"></div>
                     </a>
                 </li>
                 <li class="nav-item" data-page="analytics">
                     <a href="#analytics" class="nav-link">
-                        <i data-lucide="bar-chart-3"></i>
-                        <span>Analytics</span>
+                        <div class="nav-icon"><i data-lucide="bar-chart-3"></i></div>
+                        <span class="nav-text">Analytics</span>
+                        <div class="nav-indicator"></div>
                     </a>
                 </li>
                 <li class="nav-item" data-page="habits">
                     <a href="#habits" class="nav-link">
-                        <i data-lucide="target"></i>
-                        <span>Habits</span>
+                        <div class="nav-icon"><i data-lucide="target"></i></div>
+                        <span class="nav-text">Habits</span>
+                        <div class="nav-indicator"></div>
                     </a>
                 </li>
                 <li class="nav-item" data-page="streaks">
                     <a href="#streaks" class="nav-link">
-                        <i data-lucide="flame"></i>
-                        <span>Streaks</span>
+                        <div class="nav-icon"><i data-lucide="flame"></i></div>
+                        <span class="nav-text">Streaks</span>
+                        <div class="nav-indicator"></div>
                     </a>
                 </li>
                 <li class="nav-item" data-page="gratitude">
                     <a href="#gratitude" class="nav-link">
-                        <i data-lucide="heart"></i>
-                        <span>Gratitude</span>
+                        <div class="nav-icon"><i data-lucide="heart"></i></div>
+                        <span class="nav-text">Gratitude</span>
+                        <div class="nav-indicator"></div>
                     </a>
                 </li>
             </ul>
@@ -88,10 +97,15 @@
             <div class="user-profile">
                 <div class="avatar">
                     <i data-lucide="user"></i>
+                    <div class="avatar-ring"></div>
+                    <div class="avatar-pulse"></div>
                 </div>
                 <div class="user-info">
                     <span class="user-name">Warrior</span>
-                    <span class="user-status">Ready for Battle</span>
+                    <span class="user-status">
+                        <span class="status-dot"></span>
+                        Ready for Battle
+                    </span>
                 </div>
             </div>
         </div>
@@ -102,7 +116,9 @@
         <!-- Header -->
         <header class="main-header">
             <button class="hamburger-menu" id="hamburgerMenu">
-                <i data-lucide="menu"></i>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
             </button>
             
             <div class="header-greeting">
@@ -333,6 +349,39 @@
                     <button type="button" class="btn btn-primary" id="confirmImport" disabled>
                         <i data-lucide="download"></i>
                         Import Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                <h2 style="color: white; display: flex; align-items: center; gap: var(--space-sm);">
+                    <i data-lucide="alert-triangle"></i>
+                    Delete Habit
+                </h2>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: var(--space-xl);">
+                <div style="width: 80px; height: 80px; background: rgba(220, 38, 38, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-lg);">
+                    <i data-lucide="trash-2" style="width: 40px; height: 40px; color: #dc2626;"></i>
+                </div>
+                <h3 style="color: var(--text-primary); margin-bottom: var(--space-sm);">Are you sure?</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">
+                    You are about to delete <strong id="deleteHabitName" style="color: var(--text-primary);">this habit</strong>. 
+                    This action cannot be undone.
+                </p>
+                <div class="modal-actions" style="justify-content: center; gap: var(--space-md);">
+                    <button type="button" class="btn btn-secondary" id="cancelDelete">
+                        <i data-lucide="x"></i>
+                        Cancel
+                    </button>
+                    <button type="button" class="btn" id="confirmDelete" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white;">
+                        <i data-lucide="trash-2"></i>
+                        Delete
                     </button>
                 </div>
             </div>

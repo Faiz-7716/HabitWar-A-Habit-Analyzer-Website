@@ -12,14 +12,14 @@
 
 <br/>
 
-**A premium, gamified habit tracking web application with stunning 3D animations, interactive charts, and a warrior-themed experience to help you conquer your daily goals.**
+**A premium, gamified habit tracking web application with stunning animations, interactive charts, and a warrior-themed experience to help you conquer your daily goals.**
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Usage](#-usage) • [Screenshots](#-screenshots)
 
 <br/>
 
 ![HabitWar Banner](https://img.shields.io/badge/🎮_GAMIFIED-Habit_Tracking-c5ff00?style=for-the-badge&labelColor=0f0f1a)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.0.0-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 </div>
@@ -48,7 +48,7 @@
 - Create, edit & delete habits
 - Categorize habits (Health, Productivity, Social, Finance, Spiritual)
 - Set monthly goals for each habit
-- Track progress with visual indicators
+- Export & Import habit data (JSON backup)
 
 </td>
 <td width="50%">
@@ -78,6 +78,28 @@
 
 ---
 
+## 🆕 Latest Updates (v2.0)
+
+### ⚡ Premium Animated Sidebar
+- **Drawer Animation** - Smooth 2-second left-to-right opening
+- **Fixed Icon Positions** - Icons stay in place, drawer reveals text
+- **Glow Effects** - Animated glow border and particle background
+- **Logo Pulse** - Subtle breathing animation on logo
+- **Staggered Nav Items** - Cascading fade-in entrance
+- **Active State Glow** - Pulsing glow on selected item
+- **Mobile Responsive** - Slide-in drawer with overlay
+
+### 🎨 Premium Scrollbar
+- **Gradient Thumb** - Lime-to-dark gradient scrollbar
+- **Glow Effect** - Soft glow on hover
+- **Dark Mode Support** - Enhanced glow in dark theme
+
+### 📦 Data Management
+- **Export Data** - Download all habits as JSON
+- **Import Data** - Restore from backup with merge/replace options
+
+---
+
 ## 🛠 Tech Stack
 
 <div align="center">
@@ -101,16 +123,18 @@
 
 ```
 HabitWar/
-├── 📄 index.html          # Main application shell
-├── 🎨 styles.css          # Core design system & components
+├── 📄 index.html          # Main application shell with animated sidebar
+├── 🎨 styles.css          # Core design system, sidebar & scrollbar styles
 ├── 🎨 home-styles.css     # Dashboard-specific styles
-├── ⚡ app.js              # Core application logic
+├── ⚡ app.js              # Core application logic & data management
 ├── 📂 pages/
 │   ├── daily.html         # Daily dashboard view
 │   ├── analytics.html     # Analytics & charts
-│   ├── habits.html        # Habit management
+│   ├── habits.html        # Habit management with export/import
 │   ├── streaks.html       # Streaks & achievements
 │   └── gratitude.html     # Gratitude journal
+├── 📂 data/
+│   └── quotes.js          # Motivational quotes collection
 └── 📖 README.md           # Documentation
 ```
 
@@ -157,18 +181,22 @@ HabitWar/
 
 ### Getting Started
 
-1. **Daily Dashboard** - Your home base for tracking today's habits
-2. **Add Habits** - Click the "+" button to create new habits
-3. **Track Progress** - Click on habits to mark them complete
-4. **View Analytics** - Explore your performance over time
-5. **Earn Streaks** - Keep your momentum going!
+1. **Animated Sidebar** - Hover to smoothly reveal navigation
+2. **Daily Dashboard** - Your home base for tracking today's habits
+3. **Add Habits** - Click the "+" button to create new habits
+4. **Track Progress** - Click on habits to mark them complete
+5. **View Analytics** - Explore your performance over time
+6. **Export/Import** - Backup your data anytime
 
-### Keyboard Shortcuts
+### Navigation
 
-| Key | Action |
-|:---:|:------:|
-| `Click Habit` | Toggle completion |
-| `Theme Button` | Switch Dark/Light mode |
+| Section | Description |
+|:-------:|:-----------:|
+| 📊 Daily | Today's habits & progress |
+| 📈 Analytics | Charts & statistics |
+| 🎯 Habits | Manage all habits |
+| 🔥 Streaks | Track your consistency |
+| 💜 Gratitude | Gratitude journal |
 
 ### Data Storage
 
@@ -177,45 +205,7 @@ All your data is stored locally in your browser using **LocalStorage**:
 - `habitData` - Completion records
 - `gratitudeData` - Gratitude entries
 - `habitWarTheme` - Theme preference
-
----
-
-## 📸 Screenshots
-
-<div align="center">
-
-### 🌞 Light Mode
-```
-┌─────────────────────────────────────────────────────┐
-│  ⚔️ HabitWar        [🌙] [🔔]                       │
-├─────────────────────────────────────────────────────┤
-│                                                      │
-│   Good Morning, Warrior!                            │
-│   Ready to conquer your habits today?               │
-│                                                      │
-│   ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │
-│   │ ✅ 3    │ │ ⏳ 2    │ │ 🔥 5    │ │ 📊 60%  │  │
-│   │Completed│ │ Pending │ │ Streak  │ │  Score  │  │
-│   └─────────┘ └─────────┘ └─────────┘ └─────────┘  │
-│                                                      │
-└─────────────────────────────────────────────────────┘
-```
-
-### 🌙 Dark Mode
-```
-┌─────────────────────────────────────────────────────┐
-│  ⚔️ HabitWar        [☀️] [🔔]          🌙 DARK     │
-├─────────────────────────────────────────────────────┤
-│  ████████████████████████████████████████████████  │
-│  █                                              █  │
-│  █   Your habits, your battlefield.            █  │
-│  █   Conquer them all.                         █  │
-│  █                                              █  │
-│  ████████████████████████████████████████████████  │
-└─────────────────────────────────────────────────────┘
-```
-
-</div>
+- `habitwar_current_page` - Last visited page
 
 ---
 
@@ -239,13 +229,14 @@ All your data is stored locally in your browser using **LocalStorage**:
 
 ### Animations
 
-| Animation | Library | Effect |
-|:---------:|:-------:|:------:|
-| Page Transitions | CSS | Fade in/out |
-| Habit Toggle | CSS | Scale & color |
-| Charts | Chart.js | Data updates |
-| Particles | Particles.js | Floating background |
-| UI Elements | GSAP | Smooth interactions |
+| Animation | Duration | Effect |
+|:---------:|:--------:|:------:|
+| Sidebar Drawer | 2s | Smooth left-to-right reveal |
+| Text Reveal | 1.8s | Fade-in with delay |
+| Nav Items | 0.5s | Staggered entrance |
+| Icon Hover | 0.3s | Scale & glow |
+| Active Glow | 2s | Pulsing box-shadow |
+| Scrollbar Glow | 0.3s | Hover glow effect |
 
 ---
 

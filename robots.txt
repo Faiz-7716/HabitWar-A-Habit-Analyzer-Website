@@ -1,0 +1,11 @@
+# HabitWar Robots.txt
+# Allow all crawlers
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Disallow admin or private paths (none for this app)
+# Disallow: /admin/

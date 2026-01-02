@@ -1,0 +1,59 @@
+{
+  "name": "HabitWar",
+  "short_name": "HabitWar",
+  "description": "Transform Your Habits Into Victories - A premium gamified habit tracking app",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#c5ff00",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "favicon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle", "health"],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "HabitWar Dashboard"
+    },
+    {
+      "src": "assets/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "HabitWar Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Daily Habits",
+      "short_name": "Daily",
+      "description": "View today's habits",
+      "url": "/index.html#daily",
+      "icons": [{ "src": "favicon.jpg", "sizes": "96x96", "type": "image/jpeg" }]
+    },
+    {
+      "name": "Analytics",
+      "short_name": "Stats",
+      "description": "View your progress",
+      "url": "/index.html#analytics",
+      "icons": [{ "src": "favicon.jpg", "sizes": "96x96", "type": "image/jpeg" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
